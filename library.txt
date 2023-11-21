@@ -1,0 +1,24 @@
+
+
+CREATE OR REPLACE TRIGGER audit_trigger
+AFTER INSERT OR DELETE OR UPDATE
+ON lib_tab
+FOR EACH ROW
+BEGIN
+	IF INSERTING THEN
+		 dbms_output.put_line(:NEW.status);
+                         INSERT INTO library_audit 
+VALUES (SYSDATE,:NEW.book_name,:OLD.status,:NEW.status,'INSERT');
+
+	ELSIF UPDATING THEN
+		dbms_output.put_line(:OLD.status);
+			INSERT INTO library_audit 
+VALUES (SYSDATE,:OLD.book_name,:OLD.status,:NEW.status,'UPDATE');
+
+	ELSIF DELETING THEN
+		dbms_output.put_line(:OLD.book_name||'deleting'); 
+			INSERT INTO library_audit VALUES(SYSDATE,:OLD.book_name,:OLD.status,:NEW.status,'DELETE');
+	END IF;
+
+END;
+/

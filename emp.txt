@@ -1,0 +1,20 @@
+DECLARE
+	avg_salary NUMBER;
+	temp_salary NUMBER;
+	inc_salary NUMBER;
+BEGIN
+	SELECT AVG(emp.salary) INTO avg_salary FROM emp;
+	
+	FOR emp_rec IN (SELECT emp_no, salary FROM emp WHERE emp.salary < avg_salary) LOOP
+		temp_salary := emp_rec.salary * 0.1;
+		inc_salary := emp_rec.salary + temp_salary;
+		UPDATE emp
+		SET salary = inc_salary
+		WHERE emp.emp_no = emp_rec.emp_no;
+
+		INSERT INTO increment_salary VALUES (emp_rec.emp_no, inc_salary);
+		
+		DBMS_OUTPUT.PUT_LINE('Salary increased for employee ' || emp_rec.emp_no || ' to ' || inc_salary);
+    	END LOOP;
+END;
+/

@@ -1,0 +1,44 @@
+create table n_rollcall
+(
+roll number NOT NULL,
+name varchar2(50) NOT NULL
+);
+
+
+create table o_rollcall
+(
+roll number NOT NULL,
+name varchar2(50) NOT NULL
+);
+
+
+DECLARE
+	rollNo number;
+	flag number(2);
+	cursor cRoll(rollNo INT) IS
+		SELECT *FROM o_rollcall
+		WHERE roll NOT IN (SELECT roll FROM n_rollcall WHERE n_rollcall.roll = o_rollcall.roll);
+
+	INFO n_rollcall%ROWTYPE;
+BEGIN
+	rollNo := &rollNo;
+	flag := 0;
+	OPEN cRoll(rollNo);
+	LOOP
+		FETCH cRoll INTO INFO;
+		EXIT WHEN cRoll%NOTFOUND;
+		IF (INFO.roll = rollNo) THEN 
+			INSERT INTO n_rollcall (roll, name)
+			VALUES (INFO.roll, INFO.name);
+			flag := 1;
+		END IF;
+	END LOOP;
+	IF (cRoll%ROWCOUNT = 0 OR flag = 0) THEN
+		dbms_output.put_line('This record is present int n_rollcall');
+	ELSE
+		dbms_output.put_line('This record was not present in n_rollcall, it is inserted into it.');
+
+	END IF;
+	CLOSE cRoll;
+END;
+/

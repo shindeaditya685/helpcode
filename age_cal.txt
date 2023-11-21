@@ -1,0 +1,28 @@
+CREATE OR REPLACE FUNCTION Age_calc(
+    p_date_of_birth IN DATE,
+    p_years OUT NUMBER,
+    p_months OUT NUMBER,
+    p_days OUT NUMBER
+) RETURN NUMBER
+IS 
+    today DATE := SYSDATE;
+BEGIN
+    p_years := TRUNC(MONTHS_BETWEEN(today, p_date_of_birth)/12);
+    p_months := TRUNC(MOD(MONTHS_BETWEEN(today, p_date_of_birth), 12));
+    p_days := TRUNC(today - ADD_MONTHS(p_date_of_birth, (p_years * 12) + p_months));
+    
+    RETURN p_years;
+END Age_calc;
+/
+
+DECLARE 
+    birth_date DATE := TO_DATE('2003-10-09', 'YYYY-MM-DD');
+    years NUMBER;
+    months NUMBER;
+    days NUMBER;
+    age_in_years NUMBER;
+BEGIN
+    age_in_years := Age_calc(birth_date, years, months, days);
+    DBMS_OUTPUT.PUT_LINE('Age: ' || age_in_years || ' years, ' || months || ' months, ' || days || ' days');
+END;
+/

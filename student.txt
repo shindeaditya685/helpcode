@@ -1,0 +1,31 @@
+create table student
+  (
+  rollNo number NOT NULL,
+  name varchar2(50) NOT NULL,
+  attendance number NOT NULL,
+  status varchar2(50) NOT NULL
+ );
+
+
+DECLARE
+	roll_no NUMBER;
+	name_of_student VARCHAR2(50);
+	attendance_per NUMBER;
+	status_of_term VARCHAR2(50);
+BEGIN
+	roll_no := &roll_no;
+	name_of_student  := '&name_of_student';
+	attendance_per := &attendance_per;
+	
+
+	IF attendance_per < 75 THEN
+		dbms_output.put_line('Term Not Granted');
+		status_of_term := 'Detained';
+	ELSE
+		dbms_output.put_line('Term Granted');
+		status_of_term := 'Not Detained';
+	END IF;
+	
+	INSERT INTO Student VALUES (roll_no, name_of_student, attendance_per, status_of_term);
+END;
+/

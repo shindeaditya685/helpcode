@@ -1,0 +1,37 @@
+DECLARE
+    v_roll_number student.roll%TYPE;
+    v_attendance student.attendance%TYPE;
+    v_status student.status%TYPE;
+BEGIN
+    -- Accept roll number from the user
+    v_roll_number := &roll_number;
+
+    -- Retrieve attendance for the provided roll number
+    SELECT attendance, status
+    INTO v_attendance, v_status
+    FROM student
+    WHERE roll = v_roll_number;
+
+    IF v_attendance < 75 THEN
+        -- Attendance is less than 75%
+        dbms_output.put_line('Term not granted');
+        UPDATE student
+        SET status = 'Detained'
+        WHERE roll = v_roll_number;
+        dbms_output.put_line('Status updated to Detained');
+    ELSE
+        -- Attendance is 75% or higher
+        dbms_output.put_line('Term granted');
+        UPDATE student
+        SET status = 'Not Detained'
+        WHERE roll = v_roll_number;
+        dbms_output.put_line('Status updated to Not Detained');
+    END IF;
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        dbms_output.put_line('Roll number not found in the database');
+    WHEN OTHERS THEN
+        dbms_output.put_line('An error occurred: ' || SQLERRM);
+END;
+/

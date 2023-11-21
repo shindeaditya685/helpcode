@@ -1,0 +1,15 @@
+CREATE OR REPLACE TRIGGER customer_audit
+AFTER INSERT OR UPDATE OR DELETE
+ON Customers
+FOR EACH ROW
+DECLARE
+	salary_diff NUMBER;
+BEGIN
+	IF INSERTING OR UPDATING THEN
+		salary_diff := NVL(:NEW.salary, 0) - NVL(:OLD.salary, 0);
+	ELSIF DELETING THEN
+		salary_diff := -NVL(:OLD.salary, 0);
+	END IF;
+	dbms_output.put_line('Salary Difference: ' || salary_diff);
+END;
+/

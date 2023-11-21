@@ -1,0 +1,39 @@
+DECLARE 
+	roll_no  NUMBER;
+	name_of_book VARCHAR2(50);
+	date_of_return DATE := TO_DATE(SYSDATE, 'DD-MM-YYYY');
+	temp NUMBER;
+	fine NUMBER;
+	date_of_issue DATE;
+	no_of_days NUMBER;
+BEGIN
+	roll_no := &roll_no;
+	name_of_book := '&name_of_book';
+	
+	SELECT TO_DATE(Borrower.dateOfIssue, 'DD-MM-YYYY')
+	INTO date_of_issue FROM Borrower
+	WHERE Borrower.rollIn = roll_no AND Borrower.nameOfBook = name_of_book;
+
+	no_of_days := date_of_return - date_of_issue;
+	dbms_output.put_line('No of Days: ' || no_of_days);
+
+	IF (no_of_days > 15 AND no_of_days < 30) THEN
+		fine := 5 * no_of_days;
+	ELSIF (no_of_days > 30) THEN
+		temp := no_of_days - 30;
+		fine := 75 + temp * 50;
+	END IF;
+	
+	dbms_output.put_line('Fine: ' || fine);
+	INSERT INTO Fine VALUES (roll_no, date_of_return, fine);
+	UPDATE Borrower SET Status = 'R'
+	WHERE Borrower.rollIn = roll_no;
+
+EXCEPTION 
+	WHEN NO_DATA_FOUND THEN
+		dbms_ouput.put_line('No record found');
+	WHEN OTHERS THEN
+		dbms_output.put_line('An error occured: ' || SQLERRM);
+END;
+/
+	

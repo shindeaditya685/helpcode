@@ -1,0 +1,73 @@
+create table stud_marks
+(
+rollno int NOT NULL,
+name varchar2(50) NOT NULL,
+total_marks INT NOT NULL
+);
+
+create table result
+(
+rollno int NOT NULL,
+name varchar2(50) NOT NULL,
+class varchar2(50) NOT NULL
+);
+
+
+CREATE OR REPLACE PROCEDURE proc_grade(roll_no IN number, name_of_student IN varchar2, total_marks IN number)
+AS
+	student_grade varchar2(50);
+BEGIN
+	INSERT INTO stud_marks VALUES (roll_no, name_of_student, total_marks);
+
+	IF (total_marks <= 1500 AND total_marks >= 990) THEN
+		student_grade := 'Distinction';
+	ELSIF (total_marks > 900 AND total_marks < 989) THEN
+		student_grade := 'First Class';
+	ELSIF (total_marks > 825 AND total_marks < 899) THEN
+		student_grade := 'Higher Class';
+	ELSE 
+		student_grade := 'Second Class';
+	END IF;
+	
+	INSERT INTO result VALUES(roll_no, name_of_student, student_grade);
+	COMMIT;
+END;
+/
+
+
+DECLARE
+	roll_no NUMBER;
+	name_of_student varchar2(50);
+	total_marks NUMBER;
+BEGIN	
+	roll_no := &roll_no;
+	name_of_student := '&name_of_student';
+	total_marks := &total_marks;
+	proc_grade(roll_no, name_of_student, total_marks);
+END;
+/
+
+
+---------------------------------------------
+DECLARE
+	student_grade varchar2(50);
+BEGIN
+	FOR stud_rec IN (SELECT stud_marks.rollno, stud_marks.name, stud_marks.total_marks FROM stud_marks) LOOP
+		INSERT INTO stud_marks VALUES (stud_rec.rollno, stud_rec.name, stud_rec.total_marks);
+
+		IF (stud_rec.total_marks <= 1500 AND stud_rec.total_marks >= 990) THEN
+			student_grade := 'Distinction';
+		ELSIF (stud_rec.total_marks > 900 AND stud_rec.total_marks < 989) THEN
+			student_grade := 'First Class';
+		ELSIF (stud_rec.total_marks > 825 AND stud_rec.total_marks < 899) THEN
+			student_grade := 'Higher Class';
+		ELSE 
+			student_grade := 'Second Class';
+		END IF;
+		INSERT INTO result VALUES(stud_rec.rollno, stud_rec.name, student_grade);
+	END LOOP;
+	COMMIT;		
+END;
+/
+
+

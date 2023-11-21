@@ -1,0 +1,23 @@
+CREATE OR REPLACE TRIGGER salary_check
+AFTER INSERT OR UPDATE OR DELETE
+ON emp
+FOR EACH ROW
+DECLARE
+    v_new_salary NUMBER;
+BEGIN
+    IF INSERTING OR UPDATING THEN
+        -- Check if the new salary is less than Rs. 50,000/-
+        IF :NEW.Emp_salary < 50000 THEN
+            -- Store the new values in the Tracking table
+            INSERT INTO Tracking (Emp_no, Emp_salary)
+            VALUES (:NEW.Emp_no, :NEW.Emp_salary);
+            
+            DBMS_OUTPUT.PUT_LINE('Trigger: Salary less than Rs. 50,000/-. New values stored in Tracking table.');
+        END IF;
+    END IF;
+
+    -- Additional logic for DELETE can be added if needed
+    -- ...
+
+END;
+/
