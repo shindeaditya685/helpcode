@@ -1,0 +1,75 @@
+-- Create tables with constraints
+
+CREATE TABLE Account (
+    Acc_no INT PRIMARY KEY,
+    branch_name VARCHAR(255) NOT NULL,
+    balance DECIMAL(10, 2),
+    FOREIGN KEY (branch_name) REFERENCES Branch(branch_name)
+);
+
+CREATE TABLE Branch (
+    branch_name VARCHAR(255) PRIMARY KEY,
+    branch_city VARCHAR(255),
+    assets DECIMAL(12, 2)
+);
+
+CREATE TABLE Customer (
+    cust_name VARCHAR(255) PRIMARY KEY,
+    cust_street VARCHAR(255),
+    cust_city VARCHAR(255)
+);
+
+CREATE TABLE Depositor (
+    cust_name VARCHAR(255),
+    acc_no INT,
+    PRIMARY KEY (cust_name, acc_no),
+    FOREIGN KEY (cust_name) REFERENCES Customer(cust_name),
+    FOREIGN KEY (acc_no) REFERENCES Account(Acc_no)
+);
+
+CREATE TABLE Loan (
+    loan_no INT PRIMARY KEY,
+    branch_name VARCHAR(255),
+    amount DECIMAL(10, 2),
+    FOREIGN KEY (branch_name) REFERENCES Branch(branch_name)
+);
+
+CREATE TABLE Borrower (
+    cust_name VARCHAR(255),
+    loan_no INT,
+    PRIMARY KEY (cust_name, loan_no),
+    FOREIGN KEY (cust_name) REFERENCES Customer(cust_name),
+    FOREIGN KEY (loan_no) REFERENCES Loan(loan_no)
+);
+
+-- Queries
+
+-- 1. Find all customers who have both account and loan at the bank.
+SELECT DISTINCT c.cust_name
+FROM Customer c
+JOIN Depositor d ON c.cust_name = d.cust_name
+JOIN Borrower b ON c.cust_name = b.cust_name;
+
+-- 2. Find all customers who have an account or loan or both at the bank.
+SELECT DISTINCT c.cust_name
+FROM Customer c
+LEFT JOIN Depositor d ON c.cust_name = d.cust_name
+LEFT JOIN Borrower b ON c.cust_name = b.cust_name
+WHERE d.cust_name IS NOT NULL OR b.cust_name IS NOT NULL;
+
+-- 3. Find all customers who have an account but no loan at the bank.
+SELECT DISTINCT c.cust_name
+FROM Customer c
+LEFT JOIN Borrower b ON c.cust_name = b.cust_name
+WHERE c.cust_name IN (SELECT cust_name FROM Depositor)
+AND b.cust_name IS NULL;
+
+-- 4. Find average account balance at „Wadia College‟ branch.
+SELECT AVG(balance) AS average_balance
+FROM Account
+WHERE branch_name = 'Wadia College';
+
+-- 5. Find the number of depositors at each branch.
+SELECT branch_name, COUNT(DISTINCT cust_name) AS num_depositors
+FROM Depositor
+GROUP BY branch_name;

@@ -1,0 +1,49 @@
+DECLARE
+    v_roll_no NUMBER;
+    v_attendance NUMBER;
+    v_status VARCHAR2(20);
+
+    -- Custom exception for attendance less than 75%
+    attendance_too_low EXCEPTION;
+    
+    -- Handler for the custom exception
+    PRAGMA EXCEPTION_INIT(attendance_too_low, -20001);
+BEGIN
+    -- Accept roll number from the user
+    v_roll_no := &roll_no;
+
+    -- Fetch attendance and status from Stud table
+    SELECT Attendance, Status
+    INTO v_attendance, v_status
+    FROM Student
+    WHERE Roll = v_roll_no;
+
+    -- Check attendance and update status accordingly
+    IF v_attendance < 75 THEN
+        -- Raise custom exception for attendance less than 75%
+        RAISE attendance_too_low;
+    ELSE
+        -- Update status and display message for attendance greater than or equal to 75%
+        UPDATE Student
+        SET Status = 'Not Detained'
+        WHERE Roll = v_roll_no;
+
+        DBMS_OUTPUT.PUT_LINE('Term granted. Status: Not Detained');
+    END IF;
+
+EXCEPTION
+    WHEN attendance_too_low THEN
+        -- Handle custom exception for attendance less than 75%
+        UPDATE Student
+        SET Status = 'Detained'
+        WHERE Roll = v_roll_no;
+
+        DBMS_OUTPUT.PUT_LINE('Term not granted. Status: Detained');
+    WHEN NO_DATA_FOUND THEN
+        -- Handle exception when no record is found for the entered roll number
+        DBMS_OUTPUT.PUT_LINE('No record found for Roll Number: ' || v_roll_no);
+    WHEN OTHERS THEN
+        -- Handle other unexpected exceptions
+        DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
+END;
+/

@@ -1,0 +1,40 @@
+create table CUSTOMERS(CNo int, Cname varchar(50), Ccity varchar(50), CMobile int, PRIMARY KEY(CNo));
+create table ITEMS(INo int, Iname varchar(50), Itype varchar(50), Iprice int, Icount int, PRIMARY KEY(INo));
+create table PURCHASE(PNo int, Pdate date, Pquantity int, CNo int, INo int, PRIMARY KEY(PNo), FOREIGN KEY(CNo) REFERENCES CUSTOMERS(CNo), FOREIGN KEY(INo) REFERENCES ITEMS(INo));
+
+
+insert into CUSTOMERS VALUES(1, 'Sahil', 'Pune', 1000);
+insert into CUSTOMERS VALUES(2, 'Satori', 'Mumbai', 1010);
+insert into CUSTOMERS VALUES(3, 'Gojo', 'Bangalore', 1020);
+insert into CUSTOMERS VALUES(4, 'Maya', 'Ahmedabad', 1030);
+insert into CUSTOMERS VALUES(5, 'Gopal', 'Chennai', 1040);
+
+insert into ITEMS VALUES(100, 'Ball', 'type1', 1000, 2);
+insert into ITEMS VALUES(101, 'Bat ka Grip', 'type2', 5000, 3);
+insert into ITEMS VALUES(102, 'FootBall', 'type3', 5000, 5);
+insert into ITEMS VALUES(103, 'CricketBall', 'type4', 6000, 7);
+insert into ITEMS VALUES(104, 'BatBall', 'type5', 8000, 6);
+
+insert into PURCHASE VALUES(10, '15-sep-2023', 4, 1, 100);
+insert into PURCHASE VALUES(11, '15-aug-2023', 8, 2, 101);
+insert into PURCHASE VALUES(12, '15-jan-2023', 9, 3, 102);
+insert into PURCHASE VALUES(13, '25-jan-2023', 6, 4, 103);
+insert into PURCHASE VALUES(14, '5-sep-2023', 7, 5, 104);
+
+select Iprice from ITEMS where Iprice >2000 and Iprice < 8000;
+
+update CUSTOMERS set CMobile = 1041 where Cname = 'Gopal';
+
+select SUM(Iprice) AS MaxPrice from ITEMS;
+
+select PNo, Pdate from PURCHASE ORDER BY Pdate ASC;
+
+select COUNT(Ccity) AS CityCount from CUSTOMERS where Ccity = 'Pune';
+
+select Pquantity from PURCHASE JOIN CUSTOMERS on Customers.CNo = PURCHASE.CNo  where Cname = 'Maya';
+
+
+create view view_db AS
+select Iname, Iprice, Icount from ITEMS order by Iname DESC;
+
+describe view_db;

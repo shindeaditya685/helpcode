@@ -1,0 +1,62 @@
+-- Create tables with constraints
+
+CREATE TABLE Companies (
+    comp_id INT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    cost DECIMAL(10, 2),
+    year INT
+);
+
+CREATE TABLE Orders (
+    comp_id INT,
+    domain VARCHAR(255),
+    quantity INT,
+    PRIMARY KEY (comp_id, domain),
+    FOREIGN KEY (comp_id) REFERENCES Companies(comp_id)
+);
+
+-- Queries
+
+-- 1. Find names, costs, domains, and quantities for companies using INNER JOIN.
+SELECT Companies.name, Companies.cost, Orders.domain, Orders.quantity
+FROM Companies
+INNER JOIN Orders ON Companies.comp_id = Orders.comp_id;
+
+-- 2. Find names, costs, domains, and quantities for companies using LEFT OUTER JOIN.
+SELECT Companies.name, Companies.cost, Orders.domain, Orders.quantity
+FROM Companies
+LEFT OUTER JOIN Orders ON Companies.comp_id = Orders.comp_id;
+
+-- 3. Find names, costs, domains, and quantities for companies using RIGHT OUTER JOIN.
+SELECT Companies.name, Companies.cost, Orders.domain, Orders.quantity
+FROM Companies
+RIGHT OUTER JOIN Orders ON Companies.comp_id = Orders.comp_id;
+
+-- 4. Find names, costs, domains, and quantities for companies using UNION operator.
+SELECT name, cost, NULL AS domain, NULL AS quantity FROM Companies
+UNION
+SELECT NULL AS name, NULL AS cost, domain, quantity FROM Orders;
+
+-- 5. Create View View1 by selecting both tables to show company name and quantities.
+CREATE VIEW View1 AS
+SELECT Companies.name, Orders.quantity
+FROM Companies
+LEFT JOIN Orders ON Companies.comp_id = Orders.comp_id;
+
+-- 6. Create View View2 by selecting any two columns and perform insert update delete operations.
+CREATE VIEW View2 AS
+SELECT name, cost
+FROM Companies;
+
+-- Insert operation on View2
+INSERT INTO View2 (name, cost) VALUES ('New Company', 5000.00);
+
+-- Update operation on View2
+UPDATE View2 SET cost = 6000.00 WHERE name = 'New Company';
+
+-- Delete operation on View2
+DELETE FROM View2 WHERE name = 'New Company';
+
+-- 7. Display content of View1, View2.
+SELECT * FROM View1;
+SELECT * FROM View2;

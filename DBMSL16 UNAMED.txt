@@ -1,0 +1,48 @@
+DECLARE
+    v_roll_no   NUMBER;
+    v_name      VARCHAR2(50);
+    v_book_name VARCHAR2(50);
+    v_issue_date DATE;
+    v_status    CHAR(1);
+    v_days      NUMBER;
+    v_fine_amt  NUMBER;
+BEGIN
+    -- Accept input from the user
+    v_roll_no := &roll_no;
+    v_name := '&name';
+    v_book_name := '&book_name';
+
+    -- Fetch details from Borrower table
+    SELECT DateofIssue, Status
+    INTO v_issue_date, v_status
+    FROM Borrower
+    WHERE Rollin = v_roll_no AND NameofBook = v_book_name;
+
+    -- Calculate the number of days
+    v_days := TRUNC(SYSDATE) - v_issue_date;
+
+    -- Check for fine conditions
+    IF v_days > 30 THEN
+        v_fine_amt := 50 * v_days;
+    ELSIF v_days >= 15 THEN
+        v_fine_amt := 5 * v_days;
+    ELSE
+        v_fine_amt := 0;
+    END IF;
+
+    -- Update status in Borrower table
+    UPDATE Borrower
+    SET Status = 'R'
+    WHERE Rollin = v_roll_no AND NameofBook = v_book_name;
+
+    -- Insert details into Fine table if fine is applicable
+    IF v_fine_amt > 0 THEN
+        INSERT INTO Fine (Roll_no, Date, Amt)
+        VALUES (v_roll_no, SYSDATE, v_fine_amt);
+
+        DBMS_OUTPUT.PUT_LINE('Fine Details: Roll_no=' || v_roll_no || ', Date=' || SYSDATE || ', Amt=' || v_fine_amt);
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('No fine applicable.');
+    END IF;
+END;
+/

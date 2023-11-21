@@ -1,0 +1,40 @@
+DECLARE
+    v_avg_salary NUMBER;
+
+    -- Custom exception for no records to update
+    no_records_to_update EXCEPTION;
+    PRAGMA EXCEPTION_INIT(no_records_to_update, -20001);
+
+BEGIN
+    -- Calculate the average salary of the organization
+    SELECT AVG(salary) INTO v_avg_salary FROM emp;
+
+    -- Update salaries for eligible employees
+    FOR emp_rec IN (SELECT emp_no, salary FROM emp WHERE salary < v_avg_salary) LOOP
+        -- Calculate the increment amount (10% of existing salary)
+        DECLARE
+            v_increment_amount NUMBER;
+        BEGIN
+            v_increment_amount := emp_rec.salary * 0.10;
+        END;
+
+        -- Update employee salary
+        UPDATE emp
+        SET salary = salary + v_increment_amount
+        WHERE emp_no = emp_rec.emp_no;
+
+        -- Insert a record into increment_salary table
+        INSERT INTO increment_salary (emp_no, salary)
+        VALUES (emp_rec.emp_no, v_increment_amount);
+
+        DBMS_OUTPUT.PUT_LINE('Salary incremented for emp_no ' || emp_rec.emp_no || ' by ' || v_increment_amount);
+    END FOR;
+
+EXCEPTION
+    WHEN no_records_to_update THEN
+        DBMS_OUTPUT.PUT_LINE('No records found to update.');
+    WHEN OTHERS THEN
+        -- Handle other unexpected exceptions
+        DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
+END;
+/

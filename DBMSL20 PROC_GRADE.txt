@@ -1,0 +1,52 @@
+Certainly! First, let's create the stored procedure proc_Grade to categorize students based on their marks:
+
+CREATE OR REPLACE PROCEDURE proc_Grade(
+    p_name IN VARCHAR2,
+    p_total_marks IN NUMBER,
+    p_class OUT VARCHAR2
+) AS
+BEGIN
+    IF p_total_marks <= 1500 AND p_total_marks >= 990 THEN
+        p_class := 'Distinction';
+    ELSIF p_total_marks >= 900 AND p_total_marks <= 989 THEN
+        p_class := 'First Class';
+    ELSIF p_total_marks >= 825 AND p_total_marks <= 899 THEN
+        p_class := 'Higher Second Class';
+    ELSE
+        p_class := 'Not Classified';
+    END IF;
+END proc_Grade;
+/
+
+
+Now, let's write a PL/SQL block to use the proc_Grade procedure with the Stud_Marks and Result tables:
+
+DECLARE
+    v_roll NUMBER;
+    v_name VARCHAR2(50);
+    v_total_marks NUMBER;
+    v_class VARCHAR2(20);
+
+    -- Cursor to fetch student details
+    CURSOR stud_cursor IS
+        SELECT Roll, Name, total_marks
+        FROM Stud_Marks;
+
+BEGIN
+    -- Loop through students in Stud_Marks table
+    FOR stud_rec IN stud_cursor LOOP
+        v_roll := stud_rec.Roll;
+        v_name := stud_rec.Name;
+        v_total_marks := stud_rec.total_marks;
+
+        -- Call the proc_Grade procedure to determine the class
+        proc_Grade(v_name, v_total_marks, v_class);
+
+        -- Insert the result into the Result table
+        INSERT INTO Result (Roll, Name, Class)
+        VALUES (v_roll, v_name, v_class);
+
+        DBMS_OUTPUT.PUT_LINE('Result for ' || v_name || ' (Roll: ' || v_roll || '): ' || v_class);
+    END FOR;
+END;
+/

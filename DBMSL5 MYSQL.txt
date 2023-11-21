@@ -1,0 +1,57 @@
+-- Create tables with constraints
+
+CREATE TABLE Employee (
+    emp_id INT PRIMARY KEY,
+    employee_name VARCHAR(255) NOT NULL,
+    street VARCHAR(255),
+    city VARCHAR(255)
+);
+
+CREATE TABLE Works (
+    employee_name VARCHAR(255),
+    company_name VARCHAR(255),
+    salary DECIMAL(10, 2),
+    PRIMARY KEY (employee_name, company_name),
+    FOREIGN KEY (employee_name) REFERENCES Employee(employee_name)
+);
+
+CREATE TABLE Company (
+    company_name VARCHAR(255) PRIMARY KEY,
+    city VARCHAR(255),
+    asset DECIMAL(12, 2)
+);
+
+CREATE TABLE Manages (
+    employee_name VARCHAR(255),
+    manager_name VARCHAR(255),
+    PRIMARY KEY (employee_name),
+    FOREIGN KEY (employee_name) REFERENCES Employee(employee_name),
+    FOREIGN KEY (manager_name) REFERENCES Employee(employee_name)
+);
+
+-- Queries
+
+-- 1. Find the names of all employees who work for 'TCS'.
+SELECT employee_name
+FROM Works
+WHERE company_name = 'TCS';
+
+-- 2. Find the names and company names of all employees sorted in ascending order of company name and descending order of employee names of that company.
+SELECT employee_name, company_name
+FROM Works
+ORDER BY company_name ASC, employee_name DESC;
+
+-- 3. Change the city of the employee working with InfoSys to 'Bangalore'.
+UPDATE Employee
+SET city = 'Bangalore'
+WHERE employee_name IN (SELECT employee_name FROM Works WHERE company_name = 'InfoSys');
+
+-- 4. Find the names, street address, and cities of residence for all employees who work for 'TechM' and earn more than $10,000.
+SELECT e.employee_name, e.street, e.city
+FROM Employee e
+JOIN Works w ON e.employee_name = w.employee_name
+WHERE w.company_name = 'TechM' AND w.salary > 10000;
+
+-- 5. Add Column Asset to Company table.
+ALTER TABLE Company
+ADD COLUMN asset DECIMAL(12, 2);

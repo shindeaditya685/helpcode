@@ -1,0 +1,29 @@
+-- Assuming N_RollCall and O_RollCall are the tables with similar structures
+
+DECLARE
+    CURSOR n_roll_cursor IS
+        SELECT * FROM N_RollCall;
+
+    v_n_roll_record N_RollCall%ROWTYPE;
+
+    -- Variable to check if a record already exists
+    v_record_exists BOOLEAN := FALSE;
+BEGIN
+    -- Loop through records in N_RollCall
+    FOR v_n_roll_record IN n_roll_cursor LOOP
+        -- Check if the record already exists in O_RollCall
+        SELECT 1
+        INTO v_record_exists
+        FROM O_RollCall
+        WHERE (condition to match records, e.g., ID = v_n_roll_record.ID);
+
+        -- If the record doesn't exist, insert it into O_RollCall
+        IF v_record_exists IS NULL THEN
+            INSERT INTO O_RollCall VALUES v_n_roll_record;
+            DBMS_OUTPUT.PUT_LINE('Record inserted: ' || v_n_roll_record.ID);
+        ELSE
+            DBMS_OUTPUT.PUT_LINE('Record already exists: ' || v_n_roll_record.ID);
+        END IF;
+    END LOOP;
+END;
+/

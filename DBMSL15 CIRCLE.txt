@@ -1,0 +1,24 @@
+-- Create the areas table (if not exists)
+CREATE TABLE areas (
+    radius NUMBER,
+    area NUMBER
+);
+
+-- Declare variables
+DECLARE
+    v_radius NUMBER;
+    v_area NUMBER;
+BEGIN
+    -- Loop through the radius values from 5 to 9
+    FOR v_radius IN 5..9 LOOP
+        -- Calculate the area of the circle
+        v_area := 3.14159 * v_radius * v_radius;
+
+        -- Insert the values into the areas table
+        INSERT INTO areas (radius, area) VALUES (v_radius, v_area);
+
+        -- Display the calculated area for the current radius
+        DBMS_OUTPUT.PUT_LINE('Radius: ' || v_radius || ', Area: ' || v_area);
+    END LOOP;
+END;
+/
