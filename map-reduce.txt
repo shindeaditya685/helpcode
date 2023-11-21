@@ -1,0 +1,95 @@
+1. Display the total salary of per company
+
+// Map Function
+var mapFunction = function() {
+    emit(this.CompanyName, this.Salary);
+};
+
+// Reduce Function
+var reduceFunction = function(key, values) {
+    return Array.sum(values);
+};
+
+db.Employee.mapReduce(
+    mapFunction,
+    reduceFunction,
+    { out: { inline: 1 } }
+);
+
+
+2. Display the total salary of company Name:"TCS"
+
+// Map Function remains the same
+
+var reduceFunction = function(key, values) {
+    return Array.sum(values);
+};
+
+db.Employee.mapReduce(
+    mapFunction,
+    reduceFunction,
+    { out: { inline: 1 }, query: { CompanyName: "TCS" } }
+);
+
+
+
+3. Return the average salary of company whose address is “Pune".
+
+
+store> var map3 = function() {
+... if (this.Address && this.Address.PAddr === "Pune") {
+... emit(this.CompanyName, this.Salary); } };
+
+store> db.reduce3.drop()
+true
+store> var reduce3 = function(key, values) {
+... var total = Array.sum(values);
+... var count = values.length;
+... return total/count; };
+
+store> db.Employee.mapReduce(map3, reduce3, {out: "AvgSalary"})
+{ result: 'AvgSalary', ok: 1 }
+store> db.AvgSalary.find();
+[
+  { _id: 'Gebronics', value: 500000 },
+  { _id: 'Infosys', value: 70500 },
+  { _id: 'TCS', value: 415000 }
+]
+store>
+
+
+4. Display total count for “City=Pune”
+
+Empdb> var map5 = function() {
+... if(this.address && this.address.city === "Pune") {
+... emit("count", 1);
+... }
+... };
+
+Empdb> var reduce5 = function(key, values) {
+... return Array.sum(values);
+... };
+
+Empdb> db.employees.mapReduce(map5, reduce5, {out: "countCityPune"})
+{ result: 'countCityPune', ok: 1 }
+Empdb> db.countCityPune.find();
+[ { _id: 'count', value: 1 } ]
+
+
+
+5. Return count for city pune and age greater than 40.
+
+store> var map5 = function() {
+... if (this.Address && this.Address.PAddr === "Pune" && this.Age > 20 ) {
+... emit("count", 1);
+...  } };
+
+store> var reduce6 = function(key, values) {
+... return Array.sum(values); };
+
+store> db.Employee.mapReduce(map5, reduce5, {out: "countCityAndAgeGT30"})
+ReferenceError: reduce5 is not defined
+store> db.Employee.mapReduce(map5, reduce6, {out: "countCityAndAgeGT30"})
+{ result: 'countCityAndAgeGT30', ok: 1 }
+store> db.countCityAndAgeGT30.find()
+[ { _id: 'count', value: 4 } ]
